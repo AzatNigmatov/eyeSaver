@@ -79,9 +79,10 @@ eyeSaver/
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json"
   },
   "devDependencies": {
+    "@types/node": "^22.0.0",
     "typescript": "^5.6.0",
     "vite": "^6.0.0",
     "vitest": "^2.1.0"
@@ -89,7 +90,16 @@ eyeSaver/
 }
 ```
 
-- [ ] **Step 2: Create `tsconfig.json`**
+Also create `.gitignore`:
+
+```
+node_modules/
+dist/
+```
+
+- [ ] **Step 2: Create `tsconfig.json` (app) and `tsconfig.node.json` (config file)**
+
+`tsconfig.json`:
 
 ```json
 {
@@ -99,18 +109,35 @@ eyeSaver/
     "moduleResolution": "bundler",
     "strict": true,
     "noEmit": true,
+    "skipLibCheck": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "types": ["vite/client"]
   },
-  "include": ["src", "tests", "vite.config.ts"]
+  "include": ["src", "tests"]
+}
+```
+
+`tsconfig.node.json`:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["vite.config.ts"]
 }
 ```
 
 - [ ] **Step 3: Create `vite.config.ts`**
 
 ```ts
-/// <reference types="vitest/config" />
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
@@ -248,7 +275,7 @@ Run: `npm run dev` — open the printed URL — Expected: black page, no console
 - [ ] **Step 9: Commit**
 
 ```bash
-git add package.json package-lock.json tsconfig.json vite.config.ts index.html src/
+git add .gitignore package.json package-lock.json tsconfig.json tsconfig.node.json vite.config.ts index.html src/
 git commit -m "chore: scaffold vite + typescript project"
 ```
 
@@ -379,7 +406,8 @@ screen-filling ellipse — both cover the full screen on widescreen displays.
 
 ```ts
 import { describe, it, expect } from 'vitest';
-import { getTrajectory, TRAJECTORY_IDS } from '../src/trajectories';
+import { getTrajectory } from '../src/trajectories';
+import { TRAJECTORY_IDS } from '../src/types';
 
 const W = 1920;
 const H = 1080;
