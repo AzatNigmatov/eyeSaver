@@ -10,6 +10,15 @@ describe('trail', () => {
     expect(t.pathLength).toBeGreaterThanOrEqual(90);
   });
 
+  it('keeps the newest samples (near the head), drops the oldest', () => {
+    const t = new Trail();
+    for (let i = 0; i <= 20; i++) t.add(i * 10, 0);
+    t.trim(100);
+    // newest sample is at x=200 (kept), oldest at x=0 (dropped)
+    expect(t.oldestX).toBeGreaterThanOrEqual(90);
+    expect(t.oldestX).toBeLessThanOrEqual(110);
+  });
+
   it('keeps short paths intact', () => {
     const t = new Trail();
     for (let i = 0; i <= 5; i++) t.add(i * 10, 0);

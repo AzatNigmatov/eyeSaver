@@ -17,6 +17,9 @@ let settings: Settings = { ...DEFAULT_SETTINGS };
 let paused = false;
 let progress = 0;
 let lastTime = performance.now();
+let prevX = 0;
+let prevY = 0;
+let hasPrev = false;
 
 const ball = new Ball();
 const trail = new Trail();
@@ -82,12 +85,28 @@ function frame(now: number): void {
   const radius = blinkRadius(blink, baseRadius, fullRadius);
   const pos = getTrajectory(settings.trajectory)(progress, w, h);
 
+  let dirX = 1;
+  let dirY = 0;
+  if (hasPrev) {
+    const dx = pos.x - prevX;
+    const dy = pos.y - prevY;
+    const len = Math.hypot(dx, dy);
+    if (len > 0.001) {
+      dirX = dx / len;
+      dirY = dy / len;
+    }
+  }
+  prevX = pos.x;
+  prevY = pos.y;
+  hasPrev = true;
+
+  const trailLen = (settings.trailLength / 100) * baseRadius * 2;
   if (!paused) trail.add(pos.x, pos.y);
-  trail.trim((settings.trailLength / 100) * baseRadius * 2);
+  trail.trim(trailLen);
 
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, w, h);
-  trail.draw(ctx, colorFor(settings.color));
+  trail.draw(ctx, colorFor(settings.color), pos.x, pos.y, dirX, dirY, baseRadius, baseRadius * 2, trailLen);
   ball.draw(ctx, pos.x, pos.y, radius);
 
   if (paused) {
