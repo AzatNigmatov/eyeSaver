@@ -88,44 +88,74 @@ export class Trail {
       dists[i] = d;
     }
 
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    for (const s of this.samples) {
+      minX = Math.min(minX, s.x);
+      maxX = Math.max(maxX, s.x);
+      minY = Math.min(minY, s.y);
+      maxY = Math.max(maxY, s.y);
+    }
+    const pad = bandWidth / 2 + 14;
+    minX -= pad;
+    maxX += pad;
+    minY -= pad;
+    maxY += pad;
+
     ctx.font = '14px monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = color;
-    const charSpacing = 14;
+    const spacing = 10;
+    const halfBand = bandWidth / 2;
+    const r2 = radius * radius;
 
-    for (let i = n - 1; i >= 0; i--) {
-      const dist = dists[i];
-      if (dist < radius) continue;
-      const t = (dist - radius) / Math.max(1, trailLength);
-      if (t >= 1) continue;
-      const width = bandWidth * (1 - t);
-      if (width < charSpacing) continue;
+    for (let gy = Math.ceil(minY / spacing) * spacing; gy <= maxY; gy += spacing) {
+      for (let gx = Math.ceil(minX / spacing) * spacing; gx <= maxX; gx += spacing) {
+        const bx = gx - headX;
+        const by = gy - headY;
+        if (bx * bx + by * by < r2) continue;
 
-      let lx: number;
-      let ly: number;
-      if (i < n - 1) {
-        const dx = this.samples[i + 1].x - this.samples[i].x;
-        const dy = this.samples[i + 1].y - this.samples[i].y;
-        const len = Math.hypot(dx, dy);
-        if (len < 0.001) {
+        let bestI = -1;
+        let bestD = Infinity;
+        for (let i = 0; i < n; i++) {
+          const sx = gx - this.samples[i].x;
+          const sy = gy - this.samples[i].y;
+          const dd = sx * sx + sy * sy;
+          if (dd < bestD) {
+            bestD = dd;
+            bestI = i;
+          }
+        }
+        if (bestI < 0) continue;
+        if (dists[bestI] - radius > trailLength) continue;
+
+        const s = this.samples[bestI];
+        let lx: number;
+        let ly: number;
+        if (bestI < n - 1) {
+          const dx = this.samples[bestI + 1].x - s.x;
+          const dy = this.samples[bestI + 1].y - s.y;
+          const len = Math.hypot(dx, dy);
+          if (len < 0.001) {
+            lx = dirX;
+            ly = dirY;
+          } else {
+            lx = dx / len;
+            ly = dy / len;
+          }
+        } else {
           lx = dirX;
           ly = dirY;
-        } else {
-          lx = dx / len;
-          ly = dy / len;
         }
-      } else {
-        lx = dirX;
-        ly = dirY;
-      }
-      const px = -ly;
-      const py = lx;
+        const vx = gx - s.x;
+        const vy = gy - s.y;
+        const perp = Math.abs(-ly * vx + lx * vy);
+        if (perp > halfBand) continue;
 
-      const count = Math.floor(width / charSpacing);
-      const s = this.samples[i];
-      for (let k = -count; k <= count; k++) {
-        ctx.fillText(s.char, s.x + px * k * charSpacing, s.y + py * k * charSpacing);
+        ctx.fillText(s.char, gx, gy);
       }
     }
   }

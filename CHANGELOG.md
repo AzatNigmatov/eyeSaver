@@ -16,7 +16,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Visuals: denser ball (overlapping char grid, radial shading, ring outline,
   soft halo), denser and larger trail, partial char shuffle to reduce flicker,
   refined 8-bit panel styling (title bar, section dividers, hover states).
-- Trail is now a wide band of chars starting at the ball's rear edge and
-  tapering to a point; fixed a bug where the trail kept the oldest samples
-  (so it appeared in the start zone and vanished near the ball).
+- Trail is now a constant-width band of chars (no tapering/triangle), clipped
+  by the ball's circle so its leading edge is a curved arc with no gap; denser
+  char packing. Fixed a bug where the trail kept the oldest samples (so it
+  appeared in the start zone and vanished near the ball).
 - Blink now runs 5 grow/shrink cycles per session (was 1), every 2 passes.
