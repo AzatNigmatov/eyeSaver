@@ -34,7 +34,7 @@ export class Trail {
     if (this.hasLast) {
       const dx = x - this.lastX;
       const dy = y - this.lastY;
-      if (dx * dx + dy * dy < 64) return;
+      if (dx * dx + dy * dy < 9) return;
     }
     this.lastX = x;
     this.lastY = y;

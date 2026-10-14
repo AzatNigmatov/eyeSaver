@@ -36,6 +36,10 @@ export function createPanel(
   title.textContent = 'EYE SAVER';
   panel.appendChild(title);
 
+  const body = document.createElement('div');
+  body.className = 'panel-body';
+  panel.appendChild(body);
+
   function update(patch: Partial<Settings>): void {
     Object.assign(settings, patch);
     onChange({ ...settings });
@@ -125,7 +129,7 @@ export function createPanel(
     return inp;
   }
 
-  panel.appendChild(
+  body.appendChild(
     section(
       'MODE',
       makeList(
@@ -136,7 +140,7 @@ export function createPanel(
     ),
   );
 
-  panel.appendChild(
+  body.appendChild(
     section(
       'STYLE',
       makeList(CHAR_SET_OPTIONS, initial.charSet, (id) => update({ charSet: id as CharSetId })),
@@ -153,7 +157,7 @@ export function createPanel(
   adv.appendChild(row('SIZE', makeNumber(initial.ballSize ?? 0, (v) => update({ ballSize: v > 0 ? v : null }))));
   adv.appendChild(row('SPEED', makeRange(5, 120, initial.speed, (v) => update({ speed: v }))));
   adv.appendChild(row('TRAIL', makeRange(50, 300, initial.trailLength, (v) => update({ trailLength: v }))));
-  panel.appendChild(adv);
+  body.appendChild(adv);
 
   root.appendChild(panel);
 
